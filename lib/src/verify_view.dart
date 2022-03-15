@@ -181,7 +181,7 @@ class BoxTextField extends StatelessWidget {
               showCursor: false,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: (size * 2.5) / 10),
+                contentPadding: EdgeInsets.only(top: (size * 2.5) / (rightMargin /2)),
                 fillColor: Colors.black,
                 counter: const SizedBox(),
               ),
