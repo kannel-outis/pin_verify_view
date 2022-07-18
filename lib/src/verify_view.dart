@@ -6,10 +6,12 @@ class PinVerifyView extends StatefulWidget {
   final double size;
   final TextStyle? textStyle;
   final Function(String)? onCompleted;
+  final double rightMargin;
   const PinVerifyView({
     Key? key,
     required this.lenght,
     this.size = 50,
+    this.rightMargin = 20,
     this.textStyle,
     this.onCompleted,
   }) : super(key: key);
@@ -36,7 +38,13 @@ class _PinVerifyViewState extends State<PinVerifyView> {
     for (var i = 0; i < widget.lenght; i++) {
       final box = _CodeBox(
         index: i,
-        controller: TextEditingController(),
+        controller: TextEditingController()
+          ..addListener(() {
+            //if last item , rebuild
+            if (i == widget.lenght - 1) {
+              setState(() {});
+            }
+          }),
         focusNode: FocusNode(),
         position: getposition(i),
       );
@@ -58,7 +66,8 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   void didUpdateWidget(covariant PinVerifyView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.size != widget.size ||
-        oldWidget.textStyle != widget.textStyle) {
+        oldWidget.textStyle != widget.textStyle ||
+        widget.rightMargin != oldWidget.rightMargin) {
       setState(() {});
     }
     if (oldWidget.lenght != widget.lenght) {
@@ -71,6 +80,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   void dispose() {
     for (final box in _boxes) {
       box.focusNode.dispose();
+      box.controller.dispose();
     }
     super.dispose();
   }
@@ -88,6 +98,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
               boxManager: _boxManager,
               size: widget.size,
               onCompleted: widget.onCompleted,
+              rightMargin: widget.rightMargin,
             ),
         ],
       ),
@@ -100,11 +111,13 @@ class BoxTextField extends StatelessWidget {
   final BoxManager boxManager;
   final double size;
   final TextStyle? style;
+  final double rightMargin;
   final Function(String)? onCompleted;
   BoxTextField({
     Key? key,
     this.style,
     this.onCompleted,
+    required this.rightMargin,
     required this.boxManager,
     required this.box,
     required this.size,
@@ -132,7 +145,7 @@ class BoxTextField extends StatelessWidget {
           ),
           margin: box.position == BoxPosition.end
               ? EdgeInsets.zero
-              : const EdgeInsets.only(right: 20),
+              : EdgeInsets.only(right: rightMargin),
           child: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (event) {
@@ -141,6 +154,7 @@ class BoxTextField extends StatelessWidget {
                 if (box.controller.text.isEmpty && boxManager.hasPrev) {
                   boxManager.prevBox!.focusNode.requestFocus();
                 }
+                box.controller.text = "";
               }
             },
             child: TextField(
@@ -158,11 +172,12 @@ class BoxTextField extends StatelessWidget {
               onChanged: (value) {
                 _values.clear();
 
-                if (box.controller.text.length == 1 && boxManager.hasNext) {
+                if (box.controller.text.isNotEmpty && boxManager.hasNext) {
                   boxManager.nextBox!.focusNode.requestFocus();
-                } else if (box.controller.text.isEmpty && boxManager.hasPrev) {
-                  boxManager.prevBox!.focusNode.requestFocus();
                 }
+                // else if (box.controller.text.isEmpty && boxManager.hasPrev) {
+                //   boxManager.prevBox!.focusNode.requestFocus();
+                // }
                 if (!boxManager.hasNext &&
                     box.index == boxManager._currentBoxesIndex &&
                     box.controller.text.isNotEmpty) {
@@ -175,7 +190,8 @@ class BoxTextField extends StatelessWidget {
               showCursor: false,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: (size * 2.5) / 10),
+                contentPadding:
+                    EdgeInsets.only(top: (size * 2.5) / (rightMargin / 2)),
                 fillColor: Colors.black,
                 counter: const SizedBox(),
               ),
@@ -194,10 +210,15 @@ class BoxTextField extends StatelessWidget {
                 width: size,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.transparent,
+                  color: Colors.white,
                   border: box.index == boxManager.currentBox!.index
                       ? Border.all()
                       : null,
+                ),
+                child: Text(
+                  // ignore: prefer_is_empty
+                  box.controller.text,
+                  style: style,
                 ),
               );
             },
