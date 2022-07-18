@@ -38,7 +38,13 @@ class _PinVerifyViewState extends State<PinVerifyView> {
     for (var i = 0; i < widget.lenght; i++) {
       final box = _CodeBox(
         index: i,
-        controller: TextEditingController(),
+        controller: TextEditingController()
+          ..addListener(() {
+            //if last item , rebuild
+            if (i == widget.lenght - 1) {
+              setState(() {});
+            }
+          }),
         focusNode: FocusNode(),
         position: getposition(i),
       );
@@ -74,6 +80,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   void dispose() {
     for (final box in _boxes) {
       box.focusNode.dispose();
+      box.controller.dispose();
     }
     super.dispose();
   }
@@ -147,6 +154,7 @@ class BoxTextField extends StatelessWidget {
                 if (box.controller.text.isEmpty && boxManager.hasPrev) {
                   boxManager.prevBox!.focusNode.requestFocus();
                 }
+                box.controller.text = "";
               }
             },
             child: TextField(
@@ -164,11 +172,12 @@ class BoxTextField extends StatelessWidget {
               onChanged: (value) {
                 _values.clear();
 
-                if (box.controller.text.length == 1 && boxManager.hasNext) {
+                if (box.controller.text.isNotEmpty && boxManager.hasNext) {
                   boxManager.nextBox!.focusNode.requestFocus();
-                } else if (box.controller.text.isEmpty && boxManager.hasPrev) {
-                  boxManager.prevBox!.focusNode.requestFocus();
                 }
+                // else if (box.controller.text.isEmpty && boxManager.hasPrev) {
+                //   boxManager.prevBox!.focusNode.requestFocus();
+                // }
                 if (!boxManager.hasNext &&
                     box.index == boxManager._currentBoxesIndex &&
                     box.controller.text.isNotEmpty) {
@@ -181,7 +190,8 @@ class BoxTextField extends StatelessWidget {
               showCursor: false,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: (size * 2.5) / (rightMargin /2)),
+                contentPadding:
+                    EdgeInsets.only(top: (size * 2.5) / (rightMargin / 2)),
                 fillColor: Colors.black,
                 counter: const SizedBox(),
               ),
@@ -200,10 +210,15 @@ class BoxTextField extends StatelessWidget {
                 width: size,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.transparent,
+                  color: Colors.white,
                   border: box.index == boxManager.currentBox!.index
                       ? Border.all()
                       : null,
+                ),
+                child: Text(
+                  // ignore: prefer_is_empty
+                  box.controller.text,
+                  style: style,
                 ),
               );
             },
