@@ -6,10 +6,12 @@ class PinVerifyView extends StatefulWidget {
   final double size;
   final TextStyle? textStyle;
   final Function(String)? onCompleted;
+  final double rightMargin;
   const PinVerifyView({
     Key? key,
     required this.lenght,
     this.size = 50,
+    this.rightMargin = 20,
     this.textStyle,
     this.onCompleted,
   }) : super(key: key);
@@ -58,7 +60,8 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   void didUpdateWidget(covariant PinVerifyView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.size != widget.size ||
-        oldWidget.textStyle != widget.textStyle) {
+        oldWidget.textStyle != widget.textStyle ||
+        widget.rightMargin != oldWidget.rightMargin) {
       setState(() {});
     }
     if (oldWidget.lenght != widget.lenght) {
@@ -88,6 +91,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
               boxManager: _boxManager,
               size: widget.size,
               onCompleted: widget.onCompleted,
+              rightMargin: widget.rightMargin,
             ),
         ],
       ),
@@ -100,11 +104,13 @@ class BoxTextField extends StatelessWidget {
   final BoxManager boxManager;
   final double size;
   final TextStyle? style;
+  final double rightMargin;
   final Function(String)? onCompleted;
   BoxTextField({
     Key? key,
     this.style,
     this.onCompleted,
+    required this.rightMargin,
     required this.boxManager,
     required this.box,
     required this.size,
@@ -132,7 +138,7 @@ class BoxTextField extends StatelessWidget {
           ),
           margin: box.position == BoxPosition.end
               ? EdgeInsets.zero
-              : const EdgeInsets.only(right: 20),
+              : EdgeInsets.only(right: rightMargin),
           child: RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (event) {
@@ -175,7 +181,7 @@ class BoxTextField extends StatelessWidget {
               showCursor: false,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.only(top: (size * 2.5) / 10),
+                contentPadding: EdgeInsets.only(top: (size * 2.5) / (rightMargin /2)),
                 fillColor: Colors.black,
                 counter: const SizedBox(),
               ),
