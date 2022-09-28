@@ -38,7 +38,8 @@ class _PinVerifyViewState extends State<PinVerifyView> {
     for (var i = 0; i < widget.lenght; i++) {
       final box = _CodeBox(
         index: i,
-        controller: TextEditingController()
+        controller: TextEditingController.fromValue(TextEditingValue(
+            text: "", selection: TextSelection.collapsed(offset: 0)))
           ..addListener(() {
             //if last item , rebuild
             if (i == widget.lenght - 1) {
@@ -92,7 +93,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           for (final box in _boxes)
-            BoxTextField(
+            _BoxTextField(
               box: box,
               style: widget.textStyle,
               boxManager: _boxManager,
@@ -106,14 +107,14 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   }
 }
 
-class BoxTextField extends StatelessWidget {
+class _BoxTextField extends StatelessWidget {
   final _CodeBox box;
   final BoxManager boxManager;
   final double size;
   final TextStyle? style;
   final double rightMargin;
   final Function(String)? onCompleted;
-  BoxTextField({
+  _BoxTextField({
     Key? key,
     this.style,
     this.onCompleted,
@@ -150,6 +151,7 @@ class BoxTextField extends StatelessWidget {
             focusNode: FocusNode(),
             onKey: (event) {
               if (event.logicalKey == LogicalKeyboardKey.backspace) {
+                print(_values);
                 _values.clear();
                 if (box.controller.text.isEmpty && boxManager.hasPrev) {
                   boxManager.prevBox!.focusNode.requestFocus();
@@ -157,10 +159,12 @@ class BoxTextField extends StatelessWidget {
                 box.controller.text = "";
               }
             },
-            child: TextField(
+            child: TextFormField(
               controller: box.controller,
               focusNode: box.focusNode,
               textInputAction: TextInputAction.done,
+              keyboardType: TextInputType.numberWithOptions(signed: true),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onTap: () {
                 if (box.index != boxManager.currentBox!.index) {
                   // focusNode.unfocus();
