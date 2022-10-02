@@ -61,8 +61,9 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
-            const PinVerifyViewRemake(
+            const PinVerifyView(
               lenght: 8,
+              inputType: TextInputType.number,
             ),
             // TextField(
             //   controller: _controller,

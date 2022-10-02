@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PinVerifyView extends StatefulWidget {
+class PinVerifyViewOld extends StatefulWidget {
   final int lenght;
   final double size;
   final TextStyle? textStyle;
   final Function(String)? onCompleted;
   final double rightMargin;
-  const PinVerifyView({
+  const PinVerifyViewOld({
     Key? key,
     required this.lenght,
     this.size = 50,
@@ -17,10 +17,10 @@ class PinVerifyView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PinVerifyViewState createState() => _PinVerifyViewState();
+  _PinVerifyViewOldState createState() => _PinVerifyViewOldState();
 }
 
-class _PinVerifyViewState extends State<PinVerifyView> {
+class _PinVerifyViewOldState extends State<PinVerifyViewOld> {
   final List<_CodeBox> _boxes = [];
   BoxManager _boxManager = BoxManager.dummy();
 
@@ -64,7 +64,7 @@ class _PinVerifyViewState extends State<PinVerifyView> {
   }
 
   @override
-  void didUpdateWidget(covariant PinVerifyView oldWidget) {
+  void didUpdateWidget(covariant PinVerifyViewOld oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.size != widget.size ||
         oldWidget.textStyle != widget.textStyle ||
