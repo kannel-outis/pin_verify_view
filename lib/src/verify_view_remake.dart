@@ -149,12 +149,10 @@ class _PinVerifyViewState extends State<PinVerifyView>
       _deleteBoxValueFromIndex(value.length);
       setState(() {});
     }
-    print(value);
 
     ///when the user long presses the backspace button to clear every input, the fields should update accordingly
     ///this makes sure of that
     if (value.isEmpty) {
-      print(value);
       _deleteBoxValueFromIndex(0);
       _boxManager.setCurrentBox(_boxes[0]);
       return;
@@ -175,6 +173,10 @@ class _PinVerifyViewState extends State<PinVerifyView>
     if (_controller.text.isNotEmpty && _boxManager.hasNext) {
       _boxManager.nextBox;
     }
+    if (value.length == widget.lenght) {
+      widget.onCompleted?.call(value);
+    }
+
     return;
   }
 
@@ -194,7 +196,6 @@ class _PinVerifyViewState extends State<PinVerifyView>
                 width: textFieldSize,
                 child: Listener(
                   onPointerDown: (det) {
-                    print(det.localPosition);
                     _timer = Timer.periodic(const Duration(milliseconds: 500),
                         (timer) async {
                       final copiedText = await Clipboard.getData("text/plain");
@@ -206,7 +207,6 @@ class _PinVerifyViewState extends State<PinVerifyView>
                             copiedText: copiedText?.text,
                           );
                         }
-                        print("long pressed");
                         _destroyTimer();
                       }
                     });
@@ -219,17 +219,16 @@ class _PinVerifyViewState extends State<PinVerifyView>
                     controller: _controller,
                     focusNode: _focusNode,
                     keyboardType: widget.inputType,
-                    inputFormatters: widget.inputFormatters ??
-                        [
-                          FilteringTextInputFormatter.deny(
-                              RegExp(r'[\s\/\\]+')),
-                          // LengthLimitingTextInputFormatter(widget.lenght),
-                        ],
+                    inputFormatters: [
+                      if (widget.inputFormatters != null)
+                        ...widget.inputFormatters!,
+                      FilteringTextInputFormatter.deny(RegExp(r'[\s\/\\]+')),
+                      // LengthLimitingTextInputFormatter(widget.lenght),
+                    ],
                     onTap: () {},
                     maxLength: widget.lenght,
                     maxLines: 2,
                     onChanged: (value) {
-                      print(value);
                       _handleText(value);
                     },
                     showCursor: false,
@@ -258,12 +257,11 @@ class _PinVerifyViewState extends State<PinVerifyView>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 for (final box in _boxes)
-                  BoxTextField(
+                  BoxWidget(
                     box: box,
                     style: widget.textStyle,
                     boxManager: _boxManager,
                     size: widget.size,
-                    onCompleted: widget.onCompleted,
                     rightMargin: widget.rightMargin,
                   ),
               ],
@@ -388,17 +386,15 @@ class PasteButton extends StatelessWidget {
   }
 }
 
-class BoxTextField extends StatelessWidget {
+class BoxWidget extends StatelessWidget {
   final _CodeBox box;
   final _BoxManager boxManager;
   final double size;
   final TextStyle? style;
   final double rightMargin;
-  final Function(String)? onCompleted;
-  BoxTextField({
+  BoxWidget({
     Key? key,
     this.style,
-    this.onCompleted,
     required this.rightMargin,
     required this.boxManager,
     required this.box,
@@ -554,7 +550,6 @@ class _BoxManager extends ChangeNotifier {
         .map((e) => e.index)
         .toList()
         .indexWhere((element) => element == _currentBox!.index);
-    print("$_currentBoxesIndex :::::::::::::::::::::::::::::");
     if (_hasPrev) {
       final prev = boxes[_currentBoxesIndex - 1];
       setCurrentBox(prev);
